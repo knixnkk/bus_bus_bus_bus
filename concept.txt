@@ -1,0 +1,1 @@
+aio -> grid layout of members -> click at seat to show modal then can change status up and down

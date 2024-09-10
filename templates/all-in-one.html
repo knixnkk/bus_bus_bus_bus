@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" type="x-icon" href="{{ url_for('static', filename='images/vec.png') }}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
+    rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <title>ALL-IN-ONE - Bus Checker</title>
+
+  <style>
+    body,
+    html {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(to right, #fff, #fff);
+    }
+
+    .tickets {
+      width: 550px;
+      max-height: 96vh;
+      overflow: auto;
+      padding: 10px;
+      border: 0.4mm solid rgba(0, 0, 0, 0.08);
+      border-radius: 3mm;
+      background: #fff;
+      box-shadow: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+      font-family: 'Itim', sans-serif;
+    }
+
+    .ticket-selector {
+      padding: 20px;
+      background: #f3f3f3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .head .title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+
+    .seats {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-evenly;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .status .item {
+      font-size: 12px;
+      position: relative;
+    }
+
+    .status .item::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: -12px;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      background: #fff;
+      border: 0.2mm solid #787878;
+      border-radius: 0.3mm;
+    }
+
+    .status .item:nth-child(2)::before {
+      background: #b4b4b4;
+      border: none;
+    }
+
+    .status .item:nth-child(3)::before {
+      background: #557dff;
+      border: none;
+    }
+
+    .status .item:nth-child(4)::before {
+      background: #55ff71;
+      border: none;
+    }
+
+    .status .item:nth-child(5)::before {
+      background: #ff5555;
+      border: none;
+    }
+
+    .all-seats {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-gap: 15px;
+      margin: 20px 0;
+    }
+
+    .seat {
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 0.5mm;
+      border: 0.3mm solid #b4b4b4;
+      cursor: pointer;
+    }
+
+    .seat.hidden {
+      visibility: hidden;
+    }
+
+    .seat.select {
+      background: #557dff;
+      border: none;
+    }
+
+    .seat.booked {
+      background: #b4b4b4;
+      border: none;
+    }
+
+    .seat.up {
+      background: #b4b4b4;
+      border: none;
+    }
+
+    .seat.down {
+      background: #b4b4b4;
+      border: none;
+    }
+
+    .price {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+    }
+
+    .total {
+      display: flex;
+      flex-direction: column;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .total span {
+      font-size: 11px;
+      font-weight: 400;
+    }
+
+    .price button {
+      background: #3c3c3c;
+      color: #fff;
+      font-size: 14px;
+      padding: 7px 14px;
+      border-radius: 2mm;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="center">
+    <div class="tickets">
+      <div class="ticket-selector">
+        <div class="head">
+          <div class="title">Plate: {{ vecname }}</div>
+        </div>
+        <div class="seats">
+          <div class="status">
+            <div class="item">Available</div>
+            <div class="item">Booked</div>
+            <div class="item">Selected</div>
+            <div class="item">Up</div>
+            <div class="item">Down</div>
+          </div>
+          <div class="all-seats">
+            <!-- Seats will be dynamically generated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="uploadModal-AddData" tabindex="-1" aria-labelledby="uploadModalLabel-AddData"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadModalLabel-AddData">Booking</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="/addAIO" method="POST" id="AddDataForm" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="username">Username:</label>
+              <br>
+              <select class="form-select" id="student-select" name="student-select" required>
+                {% for member in members %}
+                <option value="{{member}}">{{member}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success" id="uploadButton">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="uploadModal-UpdateStatus" tabindex="-1" aria-labelledby="uploadModalLabel-UpdateStatus"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadModalLabel-UpdateStatus">Update Status</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="/updateStatusAIO" method="POST" id="updateStatusAIOForm" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="username">Username:</label>
+              <br>
+            </div>
+            <div class="row">
+              <div class="col">
+                <button type="submit" class="btn btn-success" style="width: 100%;" id="upButton">ขึ้น</button>
+              </div>
+              <div class="col">
+                <button type="submit" class="btn btn-danger" style="width: 100%;" id="downButton">ลง</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      let seatsContainer = document.querySelector(".all-seats");
+      let bookedSeats = [];
+      let parsingKeysJson = '{{ parsing_keys_json | safe }}';
+      let parsingKeys;
+
+      // Declare seatId as a global variable
+      let seatId;
+
+      try {
+        parsingKeys = JSON.parse(parsingKeysJson);
+      } catch (error) {
+        console.error('Error parsing parsingKeys:', error);
+        return;
+      }
+
+      if (parsingKeys === null || parsingKeys === undefined) {
+        console.log('No parsing keys found.');
+        return;
+      }
+
+      console.log('parsingKeys:', parsingKeys);
+
+      for (let i = 1; i <= 62; i++) {
+        let hideClass = (i % 3 === 0) ? "hidden" : "";
+        seatId = "s" + i; // Set seatId here
+        let isBooked = parsingKeys.some(keys => keys === seatId);
+        if (isBooked) {
+          hideClass = "booked";
+        }
+        seatsContainer.insertAdjacentHTML(
+          "beforeend",
+          `<button id="${seatId}" class="seat ${hideClass}" data-id="${seatId}"></button>`
+        );
+      }
+
+      function bookedShowModal(arg1) {
+        var myModal = new bootstrap.Modal(document.getElementById('uploadModal-UpdateStatus'));
+        var old_value = document.querySelector('#updateStatusAIOForm > div > label').textContent;
+
+        var payload = {
+          seat: arg1,
+        };
+
+        fetch('/get_seat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data);
+            var new_value = old_value + " " + data;
+            document.querySelector('#updateStatusAIOForm > div > label').textContent = new_value;
+            myModal.show();
+          })
+          .catch(error => console.error('Error fetching data:', error));
+      }
+
+      function resetLabel() {
+        var label = document.querySelector('#updateStatusAIOForm > div > label[for="username"]');
+        label.textContent = "Username :";
+      }
+
+      var modalElement = document.getElementById('uploadModal-UpdateStatus');
+      modalElement.addEventListener('hidden.bs.modal', function () {
+        resetLabel();
+      });
+
+      function showModal() {
+        var myModal = new bootstrap.Modal(document.getElementById('uploadModal-AddData'));
+        var VechicleName = document.querySelector('#uploadModalLabel-AddData')
+        VechicleName.textContent = "{{ vecname }}";
+        myModal.show();
+      }
+
+      function hideModal() {
+        var seatButtons = document.querySelectorAll('.seat.select');
+        seatButtons.forEach(function (button) {
+          button.classList.remove('select');
+        });
+      }
+
+      var modalElement = document.getElementById('uploadModal-AddData');
+      modalElement.addEventListener('hidden.bs.modal', function () {
+        hideModal();
+      });
+
+      seatsContainer.addEventListener('click', function (event) {
+        let target = event.target;
+        if (target.tagName === 'BUTTON' && target.classList.contains('seat')) {
+          //console.log("Clicked seat ID:", target.getAttribute('data-id'));
+          seatId = target.getAttribute('data-id'); // Set seatId here
+          var SeatNum = document.querySelector("#AddDataForm > div > label:nth-child(1)");
+          SeatNum.textContent = "Seat ID: " + seatId;
+          if (!target.classList.contains('booked')) {
+            target.classList.toggle('select');
+            if (target.classList.contains('select')) {
+              bookedSeats.push(seatId);
+            } else {
+              bookedSeats = bookedSeats.filter(seat => seat !== seatId);
+            }
+            showModal();
+          } else if (target.classList.contains('booked')) {
+            console.log(`Booked Seat : `, seatId);
+            bookedShowModal(seatId);
+          }
+        }
+      });
+
+      var upButton = document.getElementById('upButton');
+      var downButton = document.getElementById('downButton');
+
+      upButton.addEventListener('click', function () {
+        console.log(seatId);
+        var payload = {
+          plate: "{{vecname}}",
+          seat: seatId
+        };
+
+        fetch('/aio_up', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data);
+            var new_value = old_value + " " + data;
+            document.querySelector('#updateStatusAIOForm > div > label').textContent = new_value;
+            myModal.show();
+          })
+          .catch(error => console.error('Error fetching data:', error));
+      });
+
+      downButton.addEventListener('click', function () {
+        console.log(seatId);
+        var payload = {
+          plate: "{{vecname}}",
+          seat: seatId
+        };
+
+        fetch('/aio_down', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data);
+            var new_value = old_value + " " + data;
+            document.querySelector('#updateStatusAIOForm > div > label').textContent = new_value;
+            myModal.show();
+          })
+          .catch(error => console.error('Error fetching data:', error));
+      });
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+      let uploadButton = document.getElementById('uploadButton');
+      uploadButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        let selectedMember = document.getElementById('student-select').value;
+        let labelContent = document.querySelector('label[for="username"]').textContent.trim();
+        let vehiclePlate = document.querySelector('#uploadModalLabel-AddData').textContent;
+        let jsonData = {
+          "student-select": selectedMember,
+          "username": labelContent,
+          'vehiclePlate': vehiclePlate
+        };
+
+
+        fetch('/addAIO', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonData)
+          })
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          })
+          .then(data => {
+            console.log(data);
+            window.location.href = '/all-in-one';
+          })
+          .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+          });
+      });
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
+  </script>
+  <script>
+    function fetchTimestamp() {
+        $.ajax({
+            url: '/timestamp',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                if (data.state) {
+                        console.log('Match');
+                };
+            },
+            error: function(error) {
+                console.error('Error fetching timestamp:', error);
+            }
+        });
+    }
+
+    // Update the timestamp every second
+    setInterval(fetchTimestamp, 1000);
+</script>
+</body>
+
+</html>

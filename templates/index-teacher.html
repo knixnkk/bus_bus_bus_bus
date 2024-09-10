@@ -1,0 +1,598 @@
+< !DOCTYPE html>
+  <html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="x-icon" href="{{ url_for('static', filename='images/vec.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
+      rel="stylesheet">
+    <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Index Teacher - Bus Checker</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+        margin: 0;
+        font-family: 'Itim';
+      }
+
+      .container {
+        margin-top: 20px;
+      }
+
+      .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+      }
+
+      .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+      }
+
+      .col-2,
+      .col-8 {
+        display: flex;
+        align-items: center;
+      }
+
+      .main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 70vh;
+        /* Change from 60vh to 100vh to cover the entire viewport height */
+      }
+
+      .container-fluid {
+        background-color: #F5F5F5;
+        text-align: center;
+        /* Center the text within the container-fluid */
+      }
+
+
+      .dropdown {
+        margin-top: 20px;
+      }
+
+      .bottom-center {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .top-right {
+        margin-left: auto;
+      }
+
+      .bottom-left {
+        position: fixed;
+        bottom: 20px;
+        left: 10%;
+        transform: translateX(-50%);
+      }
+
+      #check {
+        display: none;
+      }
+
+      label #btn,
+      label #cancel {
+        position: absolute;
+        left: 5px;
+        cursor: pointer;
+        color: #000000;
+        border-radius: 5px;
+        margin: 15px 30px;
+        font-size: 29px;
+        background-color: #ffffff;
+        box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, .5),
+          inset -7px -7px 10px 0px rgba(0, 0, 0, .1),
+          3.5px 3.5px 20px 0px rgba(0, 0, 0, .1),
+          2px 2px 5px 0px rgba(0, 0, 0, .1);
+        height: 45px;
+        width: 45px;
+        text-align: center;
+        text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.5);
+        line-height: 45px;
+        transition: all .5s ease;
+      }
+
+      label #cancel {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .frame {
+        width: 50%;
+        height: 30%;
+        margin: auto;
+        text-align: center;
+      }
+
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 70px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        background: #fff;
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+      }
+
+      nav .logo {
+        display: flex;
+        align-items: center;
+        margin: 0 24px;
+      }
+
+      .logo .menu-icon {
+        color: #333;
+        font-size: 24px;
+        margin-right: 14px;
+        cursor: pointer;
+      }
+
+      .logo .logo-name {
+        color: #333;
+        font-size: 22px;
+        font-weight: 500;
+      }
+
+      nav .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 260px;
+        padding: 20px 0;
+        background-color: #fff;
+        box-shadow: 0 5px 1px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s ease;
+      }
+
+      nav.open .sidebar {
+        left: 0;
+      }
+
+      .sidebar .sidebar-content {
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 30px 16px;
+      }
+
+      .sidebar-content .list {
+        list-style: none;
+      }
+
+      .list .nav-link {
+        display: flex;
+        align-items: center;
+        margin: 8px 0;
+        padding: 14px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+      }
+
+      .lists .nav-link:hover {
+        background-color: #4070f4;
+      }
+
+      .nav-link .icon {
+        margin-right: 14px;
+        font-size: 20px;
+        color: #707070;
+      }
+
+      .nav-link .link {
+        font-size: 16px;
+        color: #707070;
+        font-weight: 400;
+      }
+
+      .lists .nav-link:hover .icon,
+      .lists .nav-link:hover .link {
+        color: #fff;
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        height: 1000vh;
+        width: 200%;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.4s ease;
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      nav.open~.overlay {
+        opacity: 1;
+        left: 260px;
+        pointer-events: auto;
+      }
+
+      .vec {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .vec i {
+        transition: color 0.3s ease;
+        color: #333;
+        /* Default color */
+      }
+
+      .vec:hover i {
+        color: #4070f4;
+        /* Color when hovering over the .vec div */
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <nav>
+        <div class="logo">
+          <i class="bx bx-menu menu-icon"></i>
+          <span class="logo-name"></span>
+          <img src="{{ url_for('static', filename='images/logo_horizontal_same_size.png') }}" alt="Custom Image" width="180px">
+        </div>
+        <div class="sidebar">
+          <div class="logo">
+            <i class="bx bx-menu menu-icon"></i>
+            <span class="logo-name"></span>
+            <img src="{{ url_for('static', filename='images/logo_horizontal_same_size.png') }}" alt="Custom Image" width="150px">
+          </div>
+          <div class="sidebar-content">
+            <ul class="lists">
+              <li class="list">
+                <a href="/" class="nav-link">
+                  <img src="{{ url_for('static', filename='images/logo_dashboard.png') }}" alt="Custom Image" width="30px">
+                  <span class="link" style='padding-left: 10px' >Dashboard</span></a></li>
+              <li class="list">
+                <a href="#" class="nav-link">
+                  <img src="{{ url_for('static', filename='images/logo_new.png') }}" alt="Custom Image" width="30px">
+                  <span class="link" style='padding-left: 10px' >New</span>
+                </a>
+              </li>
+              <li class="list">
+                <a href="/setting" class="nav-link">
+                                  <!-- <i class='bx bx-cog'></i> -->
+                  <img src="{{ url_for('static', filename='images/logo_setting.png') }}" alt="Custom Image" width="30px">
+                  <span class="link" style='padding-left: 10px'>Setting</span>
+                </a>
+              </li>
+              <!--
+              <li class="list">
+                <a href="/all-in-one" class="nav-link">
+                  <i class='bx bx-lemon'></i>
+                  <span class="link" style="color: RED;">ALL IN ONE</span>
+                  <p>maintenance</p>
+                </a>
+              </li>
+              -->
+              <li class="list">
+                <a href="/maps" class="nav-link">
+                  <img src="{{ url_for('static', filename='images/logo_gps.png') }}" alt="Custom Image" width="30px">
+                  <span class="link" style='padding-left: 10px'>GPS</span>
+                </a>
+              </li>
+              <li class="list">
+                <a href="/face_recog" class="nav-link">
+                  <img src="{{ url_for('static', filename='images/logo_recog.png') }}" alt="Custom Image" width="30px">
+                  <span class="link" style='padding-left: 10px'>Face Recognition</span>
+                </a>
+              </li>
+              <li class="list">
+                <a href="#" class="nav-link">
+                  <img src="{{ url_for('static', filename='images/logo_timer.png') }}" alt="Custom Image" width="30px">
+                  <span class="link" style='padding-left: 10px'>Set timer</span>
+                </a>
+              </li>
+            </ul>
+            <div class="bottom-cotent">
+              <li class="list"><a href="/logout" class="nav-link">
+                <a href="/logout" class="nav-link">
+                  <i class="bx bx-log-out icon"></i>
+                  <span class="link">Logout</span>
+              </a>
+              </li>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <section class="overlay"></section>
+      <div class="main container">
+        <div class="container-fluid">
+          <div class="mt-3">
+            <form action="/selectVehicle" method="POST" id="selectVehicle" enctype="multipart/form-data"><input
+                placeholder="Vehicle Number" id="selectVehicleNumber" name="selectVehicleNumber"></input><br><br>
+              <div class="table-container" style="padding:20px">
+                <div class="col-md-12">
+                  <h2><strong>รายชื่อรถ</strong></h2>
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">เลขรถ</th>
+                          <th scope="col">ชื่อรถ</th>
+                          <th scope="col">LINK</th>
+                        </tr>
+                      </thead>
+                      <tbody> {% for key,value in data.items() %}
+                        <tr>
+                          <th scope="row"> {{key}}
+                          </th>
+                          <td> {{value}}
+                          </td>
+                          <td>
+                            <div class="vec" data-key="{{key}}"><i class='bx bx-link-alt'></i></div>
+                          </td>
+                        </tr> {% endfor %}
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div><br><button class="btn btn-primary">submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- For create the vehicle only -->
+  <div class="modal fade" id="uploadModal-CreateVehicle" tabindex="-1"
+    aria-labelledby="uploadModalLabel-CreateVehicle" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadModalLabel-CreateVehicle">Create Vehicle</h5><button type="button"
+            class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="/addVehicle" method="POST" id="CreateVehicleForm" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="username" class="form-label">Vehicle Name</label>
+              <input type="text" class="form-control" id="vehicle-name" name="vehicle-name" required>
+              <div class="mb-3">
+                <label for="vehicle" class="form-label" id="select-vech">Select Teacher</label>
+                <select class="form-select" id="vehicle-select" name="vehicle-select" required> 
+                  {% for plate in options %}
+                  <option value="{{plate}}"> {{plate}}
+                  </option> {% endfor %}
+                </select>
+              </div>
+              <label for="username" class="form-label">Line Token Students Group</label>
+              <input type="text" class="form-control" id="line-token-students" name="line-token-students" required>
+              <label for="username" class="form-label">Line Token Parents Group</label>
+              <input type="text" class="form-control" id="line-token-parents" name="line-token-parents" required>
+            </div>
+            <button type="submit" class="btn btn-success" id="uploadButton">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+    
+  <!-- For set timer only -->
+  <div class="modal fade" id="uploadModal-SetTimer" tabindex="-1" aria-labelledby="uploadModalLabel-SetTimer" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadModalLabel-SetTimer">Set Timer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="/settimerwithcalculation" method="POST" id="SetTimerForm" enctype="multipart/form-data">
+            <div class="mb-3">
+              <div class="mb-3">
+                <label for="vehicle" class="form-label" id="select-vech">Select Vehicle ( เลือกรถ )</label>
+                <select class="form-select" id="vehicle-select" name="vehicle-select" required> 
+                  {% for plate in vehicle_options %}
+                  <option value="{{plate}}"> {{plate}}
+                  </option> {% endfor %}
+                </select>
+              </div>
+              <label for="text" class="form-label">Minute ( นาที )</label>
+              <input type="text"class="form-control" id="minutes" name="minutes" required>
+              <label for="text" class="form-label">Seconds ( วินาที )</label>
+              <input type="text" class="form-control" id="seconds" name="seconds" required>
+            </div>
+            <button type="submit" class="btn btn-success" id="uploadButton">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
+    <script>
+      document.querySelector('body > div.container > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(1) > a').addEventListener('click',
+        function () {
+          event.preventDefault();
+          window.location.href = "/"
+        });
+      document.querySelector('body > div.container > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(2) > a').addEventListener('click',
+        function () {
+          var myModal = new bootstrap.Modal(document.getElementById('uploadModal-CreateVehicle'));
+          myModal.show();
+        });
+      document.querySelector('body > div.container > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(6) > a').addEventListener('click',
+        function() {
+          var setTimerModal = new bootstrap.Modal(document.getElementById('uploadModal-SetTimer'));
+          setTimerModal.show();
+        }
+      );
+      document.querySelector('body > div.container > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(3) > a').addEventListener('click',
+        function () {
+          window.location.href = "/setting";
+        });
+      document.querySelector('body > div.container > nav > div.sidebar > div.sidebar-content > div > li > a').addEventListener('click', 
+      function (event) {
+            event.preventDefault();
+            window.location.href = "/logout";
+        });
+      document.querySelector('body > div.container > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(4) > a').addEventListener('click',
+        function (event) {
+          event.preventDefault();
+          window.location.href = "/maps";
+          // window.location.href = "/all-in-one";
+        });
+      /** **/
+      document.querySelector('body > div.container > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(5)').addEventListener('click',
+        function (event) {
+          event.preventDefault();
+          window.location.href = "/face_recog";
+        });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          document.querySelectorAll('.vec').forEach(element => {
+              element.addEventListener('click', function () {
+                  const key = this.getAttribute('data-key');
+
+                  // Create FormData object
+                  const formData = new FormData();
+                  formData.append('selectVehicleNumber', key);
+
+                  fetch('/linkVehicle', {
+                      method: 'POST',
+                      body: formData
+                    }
+
+                  ).then(response => response.json()).then(result => {
+                      if (result.redirect) {
+                        window.location.href = result.redirect;
+                      } else {
+                        console.log('Response data:', result.data);
+                      }
+                    }
+
+                  ).catch(error => {
+                      console.error('Error:', error);
+                    }
+
+                  );
+                }
+
+              );
+            }
+
+          );
+        }
+
+      );
+    </script>
+    <script>
+      function fetchTimestamp() {
+          $.ajax({
+              url: '/timestamp',
+              method: 'GET',
+              dataType: 'json',
+              success: function(data) {
+                  if (data.state) {
+                          console.log('Match');
+                  };
+              },
+              error: function(error) {
+                  console.error('Error fetching timestamp:', error);
+              }
+          });
+      }
+
+      // Update the timestamp every second
+      setInterval(fetchTimestamp, 1000);
+  </script>
+      <script>
+        function fetchTimestamp() {
+            $.ajax({
+                url: '/check_d',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                  if (data.state){
+                    fetch('/d_indistance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data.vehicle_plate)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                    })
+                    
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                  }
+                },
+                error: function(error) {
+                    console.error('Error fetching timestamp:', error);
+                }
+            });
+        }
+  
+        // Update the timestamp every second
+        setInterval(fetchTimestamp, 5000);
+    </script>
+  <script>
+    const navBar = document.querySelector("nav"),
+      menuBtns = document.querySelectorAll(".menu-icon"),
+      overlay = document.querySelector(".overlay");
+
+    menuBtns.forEach((menuBtn) => {
+        menuBtn.addEventListener("click", () => {
+            navBar.classList.toggle("open");
+          }
+
+        );
+      }
+
+    );
+
+    overlay.addEventListener("click", () => {
+        navBar.classList.remove("open");
+      }
+
+    );
+  </script>
+  <script>
+    const body = document.querySelector('body');
+    const sidebar = body.querySelector('nav');
+    const toggle = body.querySelector("body > div.container > nav > div.logo");
+    const searchBtn = body.querySelector(".search-box");
+    const modeSwitch = body.querySelector(".toggle-switch");
+    const modeText = body.querySelector(".mode-text");
+    
+    toggle.addEventListener("click", () => {
+      sidebar.classList.toggle("close");
+    });
+  </script>
+  </body>
+
+  </html>

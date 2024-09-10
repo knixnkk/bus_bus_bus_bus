@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="x-icon" href="{{ url_for('static', filename='images/vec.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
+
+    <title>Real-Time Face Recognition</title>
+    <style>
+        body {
+            font-family: 'Bai Jamjuree', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .center {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 70px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        background: #fff;
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+      }
+
+      nav .logo {
+        display: flex;
+        align-items: center;
+        margin: 0 24px;
+      }
+
+      .logo .menu-icon {
+        color: #333;
+        font-size: 24px;
+        margin-right: 14px;
+        cursor: pointer;
+      }
+
+      .logo .logo-name {
+        color: #333;
+        font-size: 22px;
+        font-weight: 500;
+      }
+
+      nav .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 260px;
+        padding: 20px 0;
+        background-color: #fff;
+        box-shadow: 0 5px 1px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s ease;
+      }
+
+      nav.open .sidebar {
+        left: 0;
+      }
+
+      .sidebar .sidebar-content {
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 30px 16px;
+      }
+
+      .sidebar-content .list {
+        list-style: none;
+      }
+
+      .list .nav-link {
+        display: flex;
+        align-items: center;
+        margin: 8px 0;
+        padding: 14px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+      }
+
+      .lists .nav-link:hover {
+        background-color: #4070f4;
+      }
+
+      .nav-link .icon {
+        margin-right: 14px;
+        font-size: 20px;
+        color: #707070;
+      }
+
+      .nav-link .link {
+        font-size: 16px;
+        color: #707070;
+        font-weight: 400;
+      }
+
+      .lists .nav-link:hover .icon,
+      .lists .nav-link:hover .link {
+        color: #fff;
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        height: 1000vh;
+        width: 200%;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.4s ease;
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      nav.open~.overlay {
+        opacity: 1;
+        left: 260px;
+        pointer-events: auto;
+      }
+    </style>
+</head>
+<body>
+  
+  <nav>
+    <div class="logo">
+      <i class="bx bx-menu menu-icon"></i>
+      <span class="logo-name"></span>
+      <img src="{{ url_for('static', filename='images/logo_horizontal_same_size.png') }}" alt="Custom Image" width="180px">
+    </div>
+    <div class="sidebar">
+      <div class="logo"><i class="bx bx-menu menu-icon"></i><span class="logo-name"></span>
+        <img src="{{ url_for('static', filename='images/logo_horizontal_same_size.png') }}" alt="Custom Image" width="150px">
+      </div>
+      <div class="sidebar-content">
+        <ul class="lists">
+          <li class="list">
+            <a href="/" class="nav-link">
+              <img src="{{ url_for('static', filename='images/logo_dashboard.png') }}" alt="Custom Image" width="30px">
+              <span class="link" style='padding-left: 10px' >Dashboard</span></a></li>
+          <li class="list">
+            <a href="#" class="nav-link">
+              <img src="{{ url_for('static', filename='images/logo_new.png') }}" alt="Custom Image" width="30px">
+              <span class="link" style='padding-left: 10px' >New</span>
+            </a>
+          </li>
+          <li class="list">
+            <a href="/setting" class="nav-link">
+                              <!-- <i class='bx bx-cog'></i> -->
+              <img src="{{ url_for('static', filename='images/logo_setting.png') }}" alt="Custom Image" width="30px">
+              <span class="link" style='padding-left: 10px'>Setting</span>
+            </a>
+          </li>
+          <!--
+          <li class="list">
+            <a href="/all-in-one" class="nav-link">
+              <i class='bx bx-lemon'></i>
+              <span class="link" style="color: RED;">ALL IN ONE</span>
+              <p>maintenance</p>
+            </a>
+          </li>
+          -->
+          <li class="list">
+            <a href="/maps" class="nav-link">
+              <img src="{{ url_for('static', filename='images/logo_gps.png') }}" alt="Custom Image" width="30px">
+              <span class="link" style='padding-left: 10px'>GPS</span>
+            </a>
+          </li>
+          <li class="list">
+            <a href="/face_recog" class="nav-link">
+              <img src="{{ url_for('static', filename='images/logo_recog.png') }}" alt="Custom Image" width="30px">
+              <span class="link" style='padding-left: 10px'>Face Recognition</span>
+            </a>
+          </li>
+          <li class="list">
+            <a href="#" class="nav-link">
+              <img src="{{ url_for('static', filename='images/logo_timer.png') }}" alt="Custom Image" width="30px">
+              <span class="link" style='padding-left: 10px'>Set timer</span>
+            </a>
+          </li>
+        </ul>
+        <div class="bottom-cotent">
+          <li class="list"><a href="/logout" class="nav-link"><i class="bx bx-log-out icon"></i><span
+                class="link">Logout</span></a></li>
+        </div>
+      </div>
+    </div>
+  </nav>
+      <!-- For set timer only -->
+      <div class="modal fade" id="uploadModal-SetTimer" tabindex="-1" aria-labelledby="uploadModalLabel-SetTimer" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="uploadModalLabel-SetTimer">Set Timer</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="/settimerwithcalculation" method="POST" id="SetTimerForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <div class="mb-3">
+                    <label for="vehicle" class="form-label" id="select-vech">Select Vehicle ( เลือกรถ )</label>
+                    <select class="form-select" id="vehicle-select" name="vehicle-select" required> 
+                      {% for plate in vehicle_options %}
+                      <option value="{{plate}}"> {{plate}}
+                      </option> {% endfor %}
+                    </select>
+                  </div>
+                  <label for="text" class="form-label">Minute ( นาที )</label>
+                  <input type="text"class="form-control" id="minutes" name="minutes" required>
+                  <label for="text" class="form-label">Seconds ( วินาที )</label>
+                  <input type="text" class="form-control" id="seconds" name="seconds" required>
+                </div>
+                <button type="submit" class="btn btn-success" id="uploadButton">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+        <!-- For create the vehicle only -->
+      <div class="modal fade" id="uploadModal-CreateVehicle" tabindex="-1" aria-labelledby="uploadModalLabel-CreateVehicle" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="uploadModalLabel-CreateVehicle">Create Vehicle</h5><button type="button"
+                class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="/addVehicle" method="POST" id="CreateVehicleForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <label for="username" class="form-label">Vehicle Name</label>
+                  <input type="text" class="form-control" id="vehicle-name" name="vehicle-name" required>
+                  <div class="mb-3">
+                    <label for="vehicle" class="form-label" id="select-vech">Select Teacher</label>
+                    <select class="form-select" id="vehicle-select" name="vehicle-select" required> 
+                      {% for plate in options %}
+                      <option value="{{plate}}"> {{plate}}
+                      </option> {% endfor %}
+                    </select>
+                  </div>
+                  <label for="username" class="form-label">Line Token</label>
+                  <input type="text" class="form-control" id="line-token" name="line-token" required>
+                </div>
+                <button type="submit" class="btn btn-success" id="uploadButton">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <section class="overlay"></section>
+      <script>
+        const navBar = document.querySelector("nav"),
+          menuBtns = document.querySelectorAll(".menu-icon"),
+          overlay = document.querySelector(".overlay");
+
+        menuBtns.forEach((menuBtn) => {
+            menuBtn.addEventListener("click", () => {
+                navBar.classList.toggle("open");
+              }
+
+            );
+          }
+
+        );
+
+        overlay.addEventListener("click", () => {
+            navBar.classList.remove("open");
+          }
+
+        );
+      </script>
+      <script>
+        const body = document.querySelector('body');
+        const sidebar = body.querySelector('nav');
+        const toggle = body.querySelector("body > nav > div.logo");
+        const searchBtn = body.querySelector(".search-box");
+        const modeSwitch = body.querySelector(".toggle-switch");
+        const modeText = body.querySelector(".mode-text");
+        
+        toggle.addEventListener("click", () => {
+          sidebar.classList.toggle("close");
+        });
+        </script>
+    <div class="center">
+        <h1>ระบบตรวจจับใบหน้า</h1>
+        <select id="cameraSelect" onchange="updateCamera()">
+          {% for i in camera_index %}
+              <option value="{{i}}">Camera {{i}}</option>
+          {% endfor %}
+        </select>
+        <br><br>
+        <img id="videoFeed" src="{{ url_for('video_feed', camera=0) }}" width="80%" />
+        <br>
+        <p>{{ name }}</p>
+    </div>
+    <script>
+        function fetchTimestamp() {
+            $.ajax({
+                url: '/timestamp',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.state) {
+                            console.log('Match');
+                    };
+                },
+                error: function(error) {
+                    console.error('Error fetching timestamp:', error);
+                }
+            });
+        }
+  
+        // Update the timestamp every second
+        setInterval(fetchTimestamp, 1000);
+    </script>
+    <script>
+      function updateCamera() {
+          var cameraSelect = document.getElementById('cameraSelect');
+          var videoFeed = document.getElementById('videoFeed');
+          var cameraIndex = cameraSelect.value;
+          videoFeed.src = '/video_feed?camera=' + cameraIndex;
+      }
+  </script>
+  <script>
+    document.querySelector('body > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(1) > a').addEventListener('click',
+      function () {
+        event.preventDefault();
+        window.location.href = "/"
+      });
+    document.querySelector('body > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(2) > a').addEventListener('click',
+      function () {
+        var myModal = new bootstrap.Modal(document.getElementById('uploadModal-CreateVehicle'));
+        myModal.show();
+      });
+    document.querySelector('body > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(6) > a').addEventListener('click',
+      function() {
+        var setTimerModal = new bootstrap.Modal(document.getElementById('uploadModal-SetTimer'));
+        setTimerModal.show();
+      }
+    );
+    document.querySelector('body > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(3) > a').addEventListener('click',
+      function () {
+        event.preventDefault();
+        window.location.href = "/setting";
+      });
+    document.querySelector('body > nav > div.sidebar > div.sidebar-content > div').addEventListener('click', 
+    function (event) {
+          event.preventDefault();
+          window.location.href = "/logout";
+      });
+    document.querySelector('body > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(4) > a').addEventListener('click',
+      function (event) {
+        event.preventDefault();
+        window.location.href = "/maps";
+        // window.location.href = "/all-in-one";
+      });
+    /** **/
+    document.querySelector('body > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(5)').addEventListener('click',
+      function (event) {
+        event.preventDefault();
+        window.location.href = "/face_recog";
+      });
+  </script>
+</body>
+</html>

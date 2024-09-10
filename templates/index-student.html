@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="x-icon" href="{{ url_for('static', filename='images/vec.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- Bootstrap Icons (optional) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
+        rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Index Students - Bus Checker</title>
+    <style>
+        /* Additional CSS styles */
+        body {
+            font-family: 'Itim', sans-serif;
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            /* Optional: Set background color */
+            margin: 0;
+        }
+
+        .container-center {
+            text-align: center;
+        }
+
+        .main-content {
+            margin-top: 20px;
+        }
+
+        /* Additional CSS styles for popup-like container */
+        .container-2 {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            /* Set the width to 100% */
+            margin: 0 auto;
+        }
+
+        .secondary-content {
+            margin-top: 20px;
+        }
+
+        /* Adjust button colors and small text color as needed */
+        .btn-enter,
+        .btn-exit {
+            width: 50%;
+            /* Set the width to 50% for each button */
+            margin-bottom: 10px;
+            /* Optional: Add margin between buttons */
+        }
+
+        .btn-enter {
+            background-color: green;
+        }
+
+        .btn-exit {
+            background-color: red;
+        }
+
+        .small-text {
+            color: #B4B4B4;
+        }
+
+        nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 70px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        background: #fff;
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+      }
+
+      nav .logo {
+        display: flex;
+        align-items: center;
+        margin: 0 24px;
+      }
+
+      .logo .menu-icon {
+        color: #333;
+        font-size: 24px;
+        margin-right: 14px;
+        cursor: pointer;
+      }
+
+      .logo .logo-name {
+        color: #333;
+        font-size: 22px;
+        font-weight: 500;
+      }
+
+      nav .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 260px;
+        padding: 20px 0;
+        background-color: #fff;
+        box-shadow: 0 5px 1px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s ease;
+      }
+
+      nav.open .sidebar {
+        left: 0;
+      }
+
+      .sidebar .sidebar-content {
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 30px 16px;
+      }
+
+      .sidebar-content .list {
+        list-style: none;
+      }
+
+      .list .nav-link {
+        display: flex;
+        align-items: center;
+        margin: 8px 0;
+        padding: 14px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+      }
+
+      .lists .nav-link:hover {
+        background-color: #4070f4;
+      }
+
+      .nav-link .icon {
+        margin-right: 14px;
+        font-size: 20px;
+        color: #707070;
+      }
+
+      .nav-link .link {
+        font-size: 16px;
+        color: #707070;
+        font-weight: 400;
+      }
+
+      .lists .nav-link:hover .icon,
+      .lists .nav-link:hover .link {
+        color: #fff;
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        height: 1000vh;
+        width: 200%;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.4s ease;
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      nav.open~.overlay {
+        opacity: 1;
+        left: 260px;
+        pointer-events: auto;
+      }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <nav>
+            <div class="logo">
+              <i class="bx bx-menu menu-icon"></i>
+              <span class="logo-name"></span>
+              <img src="{{ url_for('static', filename='images/logo_horizontal_same_size.png') }}" alt="Custom Image" width="180px">
+            </div>
+            <div class="sidebar">
+              <div class="logo">
+                <i class="bx bx-menu menu-icon"></i>
+                <span class="logo-name"></span>
+                <img src="{{ url_for('static', filename='images/logo_horizontal_same_size.png') }}" alt="Custom Image" width="150px">
+              </div>
+              <div class="sidebar-content">
+                <ul class="lists">
+                  <li class="list">
+                    <a href="/" class="nav-link">
+                      <img src="{{ url_for('static', filename='images/logo_dashboard.png') }}" alt="Custom Image" width="30px">
+                      <span class="link" style='padding-left: 10px' >Dashboard</span></a></li>
+                  <li class="list">
+                    <a href="#" class="nav-link">
+                        <img src="{{ url_for('static', filename='images/teble-bus.png') }}" alt="Custom Image" width="30px">
+                        <span class="link" style='padding-left: 10px' >Table Student</span>
+                    </a>
+                  </li>
+                </ul>
+                <div class="bottom-cotent">
+                  <li class="list"><a href="/logout" class="nav-link">
+                    <a href="/logout" class="nav-link">
+                      <i class="bx bx-log-out icon"></i>
+                      <span class="link">Logout</span>
+                  </a>
+                  </li>
+                </div>
+              </div>
+            </div>
+          </nav>
+          <section class="overlay"></section>
+          <script>
+            const navBar = document.querySelector("nav"),
+              menuBtns = document.querySelectorAll(".menu-icon"),
+              overlay = document.querySelector(".overlay");
+        
+                menuBtns.forEach((menuBtn) => {
+                    menuBtn.addEventListener("click", () => {
+                        navBar.classList.toggle("open");
+                    }
+                );
+              }
+        
+            );
+        
+            overlay.addEventListener("click", () => {
+                navBar.classList.remove("open");
+              }
+        
+            );
+          </script>
+        <div class="container-fluid" style="background-color: #F5F5F5; padding: 20px;">
+            <div class="container-2">
+                <div class="col-12 mx-auto">
+                    <h1 style="text-align:center;" id="specific_vehicle_plate">{{VehiclePlate}}</h1>
+                </div>
+                <div class="col-12 mx-auto text-center">
+                    <img src="{{ url_for('static', filename='images/' + image_path) }}" class="img-fluid" alt="Image" width="500" height="400" id="img_container" style="width: 500px; height: 300px;">
+                </div>
+                <br>
+                <div class="col-12 mx-auto text-center">
+                    <h2 id="status_container">Status : {{status}}</h2>
+                </div>
+                <br>
+                <div class="col-12 mx-auto text-center">
+                    <h3 style="color: #B4B4B4;">{{display}}</h3>
+                </div>
+                <br>
+                <form>
+                    <p id="hidden_username" style="display: none;">{{username}}</p>
+                    <p id="hidden_VehiclePlate" style="display: none;">{{VehiclePlate}}</p>
+                    <div class="row secondary-content">
+                        <div class="col-6">
+                            <button class="btn btn-success btn-enter text-white w-100" id="upButton"><i
+                                    class="bi bi-box-arrow-in-right"></i> Enter</button>
+                            <br>
+                            <small class="small-text">ขึ้นรถ</small>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-danger btn-exit text-white w-100" id="downButton"><i
+                                    class="bi bi-box-arrow-right"></i> Exit</button>
+                            <br>
+                            <small class="small-text">ลงรถ</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        document.getElementById('upButton').addEventListener('click', function (event) {
+            event.preventDefault();
+            var vehiclePlate = document.getElementById('hidden_VehiclePlate').textContent;
+            var username = document.getElementById('hidden_username').textContent;
+            window.location.href = "/up/" + encodeURIComponent(vehiclePlate) + "-" + encodeURIComponent(
+                username);
+        });
+
+
+
+        document.getElementById('downButton').addEventListener('click', function (event) {
+            event.preventDefault();
+            var vehiclePlate = document.getElementById('hidden_VehiclePlate').textContent;
+            var username = document.getElementById('hidden_username').textContent;
+            window.location.href = "/down/" + encodeURIComponent(vehiclePlate) + "-" + encodeURIComponent(
+                username);
+        });
+
+        document.querySelector('body > div > nav > div.sidebar > div.sidebar-content > ul > li:nth-child(2)').addEventListener('click', 
+            function (event) {
+                event.preventDefault();
+                window.location.href = "/list/"+"{{VehiclePlate}}";
+        });
+    </script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
+    <script>
+        function fetchPlate() {
+            $.ajax({
+                url: '/updateVehiclePlate',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    const plateElement = document.querySelector('#specific_vehicle_plate');
+                    if (response.data === null) {
+                        plateElement.textContent = "ยังไม่ขึ้นรถ"; 
+                    } else {
+                        plateElement.textContent = response.data;
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching plate:', error);
+                    document.querySelector('#specific_vehicle_plate').textContent = "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+                }
+            });
+        }
+        setInterval(fetchPlate, 1000);
+        fetchPlate();
+    </script>
+    <script>
+        function fetchStatus() {
+            $.ajax({
+                url: '/updateStatusAJAX',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    let status = "";
+                    if (response.data == "up"){
+                        status = "ขึ้นรถ";
+                    }else if(response.data == "down"){
+                        status = "ลงรถ";
+                    }else{
+                        status = "not_found"
+                    }
+                    document.querySelector('#status_container').textContent = "Status : " + status;
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching status:', error);
+                }
+            });
+        }
+        setInterval(fetchStatus, 1000);
+        fetchStatus();
+    </script>
+    <script>
+        function fetchTimestamp() {
+            $.ajax({
+                url: '/timestamp',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.state) {
+                            console.log('Match');
+                    };
+                },
+                error: function(error) {
+                    console.error('Error fetching timestamp:', error);
+                }
+            });
+        }
+  
+        // Update the timestamp every second
+        setInterval(fetchTimestamp, 1000);
+    </script>
+    <script>
+        function fetchIMG() {
+            const key = "{{ VehiclePlate }}";
+
+            $.ajax({
+                url: '/updateIMGPATH',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ vehicle_plate: key }),
+                dataType: 'json',
+                success: function(response) {
+                    if (document.querySelector('#specific_vehicle_plate').textContent != "ยังไม่ขึ้นรถ"){
+                        document.querySelector('#img_container').hidden = false;
+                        document.querySelector('#status_container').hidden = false;
+
+                        const imageUrl = `{{ url_for('static', filename='') }}${response.img}`;
+                        console.log(imageUrl);
+                        console.log(response.img);
+                        $('#img_container').attr('src', imageUrl);
+                    }else{
+                        document.querySelector('#status_container').hidden = true;
+                        document.querySelector('#img_container').hidden = true;
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('Error fetching data:', textStatus, errorThrown);
+                }
+            });
+        }
+
+        // Fetch and update the table every second
+        setInterval(fetchIMG, 1000);
+
+        // Initial call to populate the table
+        fetchIMG();
+    </script>
+    <script>
+
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+flask
+passlib
+pymongo
+requests
+pandas
+xlrd
+pyserial
+pynmeagps
+opencv-python
+face_recognition
+scikit-learn
+pygrabber

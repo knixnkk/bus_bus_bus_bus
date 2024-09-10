@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="shortcut icon" type="x-icon" href="{{ url_for('static', filename='images/vec.png') }}">
+    <!-- Bootstrap Icons (optional) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            margin: 0;
+            font-family: 'Itim', sans-serif;
+        }
+        .container-fluid {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 20px;
+        }
+        header {
+            padding: 10px;
+            background-color: #343a40;
+            color: #fff;
+            text-align: center;
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        .centered {
+            background: #f0f0f0;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        .phone_call:hover {
+            color: green;
+        }
+        .status.up {
+            color: green;
+        }
+        .status.down {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="col-6" id="logoutButton">
+        <button class="btn btn-danger">Back</button>
+    </div>
+    <div class="container-fluid">
+        <div class="table-container">
+            <div class="col-md-12">
+                <h2 style="color : green"><strong>รายชื่อนักเรียน</strong></h2>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">เลขที่</th>
+                                <th scope="col">ชื่อ</th>
+                                <th scope="col">สถานะ</th>
+                                <th scope="col">เบอร์โทรศัพท์</th>
+                                <th scope="col">ติดต่อ</th>
+                            </tr>
+                        </thead>                        
+                        <tbody id="table-body">
+                            <!-- Table rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('logoutButton').addEventListener('click', function (event) {
+            event.preventDefault();
+            window.location.href = "/";
+        });
+
+        function handlePhoneCall(cell) {
+            var phoneNumber = cell.getAttribute('data-phone');
+            if (phoneNumber) {
+                fetch('/getPhone', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone: phoneNumber })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    window.location.href = 'tel:' + data.data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+
+        function updateTable(data) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = ''; // Clear existing rows
+            
+            Object.keys(data).forEach(key => {
+                Object.keys(data[key]).forEach(id => {
+                    const details = data[key][id];
+                    const statusClass = details[0] === "ขึ้นรถ" ? 'up' : 'down';
+                    
+                    const row = `
+                        <tr>
+                            <td class="centered">${key}</td>
+                            <td class="centered">${id}</td>
+                            <td class="centered status ${statusClass}">${details[0]}</td>
+                            <td class="centered">${details[1]}</td>
+                            <td class="phone_call" data-phone="${details[2]}" onclick="handlePhoneCall(this)">
+                                <i class='bx bx-phone-call'></i>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+            });
+        }
+
+        function fetchTable() {
+            const key = window.location.href;
+            const data = key.split('/')[4];
+
+            $.ajax({
+                url: '/tableUpdate',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ vehicle_plate: data }),
+                dataType: 'json',
+                success: function(response) {
+                    updateTable(response.data);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('Error fetching data:', textStatus, errorThrown);
+                }
+            });
+        }
+
+        // Fetch and update the table every second
+        setInterval(fetchTable, 1000);
+
+        // Initial call to populate the table
+        fetchTable();
+    </script>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
