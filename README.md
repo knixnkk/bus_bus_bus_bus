@@ -77,4 +77,4 @@ For inquiries, please contact Your Name.
 5. Ajax
 
 
-** P.S. I'm just a student from somewhere where you can make `pull requests` or `issues`. I'll try my best to help you fix it **
+**P.S. I'm just a student from somewhere where you can make `pull requests` or `issues`. I'll try my best to help you fix it**
