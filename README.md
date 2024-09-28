@@ -74,3 +74,7 @@ For inquiries, please contact Your Name.
 2. Apply Machine Learning to a website like (`face recognition`)
 3. Module GPS for tracking the route
 4. AIO (`all in one`) system not still **maintenance** `I'm busy, my bad guys`
+5. Ajax
+
+
+** P.S. I'm just a student from somewhere where you can make `pull requests` or `issues`. I'll try my best to help you fix it **
