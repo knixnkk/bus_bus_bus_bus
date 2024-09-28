@@ -70,7 +70,7 @@ For inquiries, please contact Your Name.
 ```
 
 ### Changes
-> new UX/UI for better look
-> Apply Machine Learning to a website like (`face recognition`)
-> Module GPS for tracking the route
-> AIO (`all in one`) system not still **maintenance** `I'm busy, my bad guys`
+1. new UX/UI for better look
+2. Apply Machine Learning to a website like (`face recognition`)
+3. Module GPS for tracking the route
+4. AIO (`all in one`) system not still **maintenance** `I'm busy, my bad guys`
