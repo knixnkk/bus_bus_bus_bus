@@ -345,6 +345,7 @@
           var cameraSelect = document.getElementById('cameraSelect');
           var videoFeed = document.getElementById('videoFeed');
           var cameraIndex = cameraSelect.value;
+          console.log(cameraIndex);
           videoFeed.src = '/video_feed?camera=' + cameraIndex;
       }
   </script>
