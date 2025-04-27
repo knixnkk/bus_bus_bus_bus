@@ -17,15 +17,28 @@ from pygrabber.dshow_graph import FilterGraph
 import math
 from sklearn import neighbors
 from face_recognition.face_recognition_cli import image_files_in_folder
-
+import pythoncom
 
 camfDown_url = "http://" + socket.gethostbyname(socket.gethostname()) + ":5000/camfDown"
 camfUp_url = "http://" + socket.gethostbyname(socket.gethostname()) + ":5000/camfUP"
 
+
 def list_camera_devices():
+    pythoncom.CoInitialize()
     graph = FilterGraph()
     return graph.get_input_devices()
 
+def get_camera_index_by_name(name):
+    pythoncom.CoInitialize()
+    try:
+        graph = FilterGraph()
+        camera_list = graph.get_input_devices()
+        for index, camera in enumerate(camera_list):
+            if name in camera:
+                return index
+    except Exception as e:
+        print(f"Error getting camera index: {e}")
+        return name
 
 # Load KNN classifier
 try:
@@ -44,8 +57,17 @@ def predict(img, knn_clf, threshold=0.4):
     matches = [closest_distances[0][i][0] <= threshold for i in range(len(face_box))]
     return [(pred, loc) if rec else ("unknown", loc) for pred, loc, rec in zip(knn_clf.predict(faces_encodings), face_box, matches)]
 
-def generate_frames(camera_index):
+def generate_frames(camera_source):
+    print('camera_source : ', camera_source)
+    camera_index = get_camera_index_by_name(camera_source)
     webcam = cv2.VideoCapture(camera_index)
+
+    # พยายามแปลง camera_source เป็นเลข index สำหรับใช้เช็กเงื่อนไข
+    try:
+        camera_index = int(camera_source)
+    except ValueError:
+        camera_index = None  # ถ้าไม่ใช่ตัวเลขก็ไม่มี index
+
     try:
         while True:
             rval, frame = webcam.read()
@@ -66,6 +88,7 @@ def generate_frames(camera_index):
                 left *= 4
                 cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 255), 2)
                 cv2.putText(frame, name, (left-10, top-6), font, 0.8, (255, 255, 255), 1)
+            
             if predictions and predictions[0][0] != "unknown":
                 print(predictions[0][0])
                 try:
@@ -73,6 +96,7 @@ def generate_frames(camera_index):
                         requests.post(camfDown_url, data=predictions[0][0])
                     elif camera_index == 1:
                         requests.post(camfUp_url, data=predictions[0][0])
+                    # ถ้าไม่ใช่ index 0 หรือ 1 จะไม่ส่ง request
                 except requests.RequestException as e:
                     print(f"Request failed: {e}")
             
@@ -85,6 +109,7 @@ def generate_frames(camera_index):
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     finally:
         webcam.release()
+
         
 app = Flask(__name__)
 app.config['STATIC_FOLDER'] = 'static'
@@ -628,9 +653,13 @@ def face_recog():
 
 @app.route('/video_feed')
 def video_feed():
-    # Get the camera index from query parameters
-    camera_index =  request.args.get('camera', 0)
-    camera_index = int(camera_index)  # Ensure it's an integer
+    camera_index = request.args.get('camera', 0)
+
+    # ลองแปลงเป็น int ถ้าได้ก็โอเค ถ้าไม่ได้ก็ใช้เป็น string
+    try:
+        camera_index = int(camera_index)
+    except ValueError:
+        pass  # ใช้เป็นชื่อ string ต่อไป
 
     return Response(generate_frames(camera_index), mimetype='multipart/x-mixed-replace; boundary=frame')
 
